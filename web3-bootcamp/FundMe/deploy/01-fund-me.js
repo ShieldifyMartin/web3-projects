@@ -29,7 +29,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         !developmentChains.includes(network.name) &&
         process.env.ETHERSCAN_API_KEY
     ) {
-        await verify(fundMe.address, [ethUsdPriceFeedAddress])
+        await verify(fundMe.address, ethUsdPriceFeedAddress)
     }
 }
 

@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 library PriceConverter {
-    /** @notice Gets ether price
+    /** @notice Returns the latest price
      *  @param priceFeed price feed
      *  @return ethPrice price of ether
      */
@@ -17,7 +17,7 @@ library PriceConverter {
         ethPrice = uint256(answer * 1e10);
     }
 
-    /** @notice Gets the amount that an address has funded
+    /** @notice Returns ether amount in USD
      *  @param ethAmount amount of ether
      *  @param priceFeed price feed
      *  @return ethAmountInUsd usd amount
