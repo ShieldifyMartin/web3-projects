@@ -3,11 +3,19 @@ pragma solidity ^0.8.16;
 
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 
 error Raffle_NotEnoughETH();
 error Raffle_TransferFailed();
+error Raffle_NotOpen();
 
-contract Raffle is VRFConsumerBaseV2 {
+contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
+    //Type declarations
+    enum RaffleState {
+        OPEN,
+        CALCULATING
+    }
+
     // State Variables
     address immutable owner;
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
@@ -22,6 +30,7 @@ contract Raffle is VRFConsumerBaseV2 {
 
     // Raffle Variables
     address private s_recentWinner;
+    RaffleState private s_raffleState;
 
     event RaffleEnter(address indexed player);
     event RequestRaffleWinner(uint256 indexed requestId);
@@ -40,18 +49,27 @@ contract Raffle is VRFConsumerBaseV2 {
         i_gasLane = gasLane;
         i_subscriptionId = subscriptionId;
         i_callbackGasLimit = callbackGasLimit;
+        s_raffleState = RaffleState.OPEN;
     }
 
     function pickNumber(int256 n) public payable {
         if (msg.value < i_entraceFee) {
             revert Raffle_NotEnoughETH();
+        } else if (s_raffleState != RaffleState.OPEN) {
+            revert Raffle_NotOpen();
         }
+
         bets[msg.sender] = n;
         s_players.push(payable(msg.sender));
         emit RaffleEnter(msg.sender);
     }
 
+    function checkUpkeep(
+        bytes calldata /* checkData */
+    ) external {}
+
     function pickWinner() external {
+        s_raffleState = RaffleState.CALCULATING;
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
             i_gasLane,
             i_subscriptionId,
@@ -70,6 +88,7 @@ contract Raffle is VRFConsumerBaseV2 {
         address payable recentWinner = s_players[indexOfWinner];
         s_recentWinner = recentWinner;
 
+        s_raffleState = RaffleState.OPEN;
         (bool success, ) = recentWinner.call{value: address(this).balance}("");
         if (!success) {
             revert Raffle_TransferFailed();
