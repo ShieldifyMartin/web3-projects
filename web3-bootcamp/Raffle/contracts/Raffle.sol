@@ -85,6 +85,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         bytes memory /* checkData */
     )
         public
+        view
         override
         returns (
             bool upkeepNeeded,
@@ -170,7 +171,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return s_lastTimeStamp;
     }
 
-    function getRequestConfirmations() public view returns (uint256) {
+    function getRequestConfirmations() public pure returns (uint256) {
         return REQUEST_CONFIRMATIONS;
     }
 }
