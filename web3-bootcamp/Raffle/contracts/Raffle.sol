@@ -69,7 +69,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
      * @param n input number
      * @dev stores current sender and bet in storage
      */
-    function pickNumber(int256 n) public payable {
+    function enterRaffle(int256 n) public payable {
         if (msg.value < i_entraceFee) {
             revert Raffle_NotEnoughETH();
         } else if (s_raffleState != RaffleState.OPEN) {
@@ -173,5 +173,9 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     function getRequestConfirmations() public pure returns (uint256) {
         return REQUEST_CONFIRMATIONS;
+    }
+
+    function getInterval() public view returns (uint256) {
+        return i_interval;
     }
 }
