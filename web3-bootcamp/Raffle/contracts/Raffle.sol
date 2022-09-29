@@ -37,7 +37,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     // Raffle Variables
     address private s_recentWinner;
     RaffleState private s_raffleState;
-    uint256 private s_lastTimeStamp;
+    uint256 private s_lastTimestamp;
     uint256 private immutable i_interval;
 
     // Events
@@ -61,7 +61,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         i_subscriptionId = subscriptionId;
         i_callbackGasLimit = callbackGasLimit;
         s_raffleState = RaffleState.OPEN;
-        s_lastTimeStamp = block.timestamp;
+        s_lastTimestamp = block.timestamp;
         i_interval = interval;
     }
 
@@ -93,7 +93,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         )
     {
         bool isOpen = RaffleState.OPEN == s_raffleState;
-        bool timePassed = (block.timestamp - s_lastTimeStamp) > i_interval;
+        bool timePassed = (block.timestamp - s_lastTimestamp) > i_interval;
         bool hasPlayers = s_players.length > 0;
         bool hasBalance = address(this).balance > 0;
         upkeepNeeded = isOpen && timePassed && hasPlayers && hasBalance;
@@ -133,7 +133,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         s_recentWinner = recentWinner;
         s_raffleState = RaffleState.OPEN;
         s_players = new address payable[](0);
-        s_lastTimeStamp = block.timestamp;
+        s_lastTimestamp = block.timestamp;
 
         (bool success, ) = recentWinner.call{value: address(this).balance}("");
         if (!success) {
@@ -167,8 +167,8 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         return NUM_WORDS;
     }
 
-    function getLatestTimeStamp() public view returns (uint256) {
-        return s_lastTimeStamp;
+    function getLatestTimestamp() public view returns (uint256) {
+        return s_lastTimestamp;
     }
 
     function getRequestConfirmations() public pure returns (uint256) {
