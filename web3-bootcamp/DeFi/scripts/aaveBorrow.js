@@ -8,6 +8,14 @@ const main = async () => {
   // Lending Pool
   const lendingPool = await getLendingPool(deployer);
   console.log(`LendingPool address: ${lendingPool.address}`);
+
+  // Approve and Deposit
+  await approveERC20(wethTokenAddress, lendingPool.address, AMOUNT, deployer);
+  console.log("Depositing...");
+  await lendingPool.deposit(wethTokenAddress, AMOUNT, deployer, 0, {
+    gasLimit: 800000,
+  });
+  console.log("Deposited!");
 };
 
 const getLendingPool = async (account) => {
@@ -23,6 +31,14 @@ const getLendingPool = async (account) => {
     account
   );
   return lendingPool;
+};
+
+const approveERC20 = async (erc20Address, spenderAddress, amount, signer) => {
+  const erc20Token = await ethers.getContractAt("IERC20", erc20Address, signer);
+  txResponse = await erc20Token.approve(spenderAddress, amount);
+  await txResponse.wait(1);
+  console.log("Approved!");
+  console.log("-----------");
 };
 
 main()
