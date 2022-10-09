@@ -1,5 +1,6 @@
 const { getNamedAccounts, ethers } = require("hardhat");
-const { getWeth } = require("../scripts/getWeth");
+const { getWeth, AMOUNT } = require("../scripts/getWeth");
+const { wethTokenAddress } = require("../helpers/helper-hardhat-config");
 
 const main = async () => {
   await getWeth();
@@ -31,6 +32,15 @@ const main = async () => {
     amountDaiToBorrow.toString()
   );
   await borrowDai(daiTokenAddress, lendingPool, amountDaiToBorrowWei, deployer);
+
+  // User Info
+  await getBorrowUserData(lendingPool, deployer);
+
+  // Repay
+  await repay(amountDaiToBorrowWei, daiTokenAddress, lendingPool, deployer);
+
+  // User Info
+  await getBorrowUserData(lendingPool, deployer);
 };
 
 const getDaiPrice = async () => {
@@ -107,6 +117,13 @@ const borrowDai = async (
   console.log(
     `You have borrowed ${ethers.utils.formatEther(amountDaiToBorrowWei)} ETH!`
   );
+};
+
+const repay = async (amount, daiAddress, lendingPool, account) => {
+  await approveERC20(daiAddress, lendingPool.address, amount, account);
+  const repayTx = await lendingPool.repay(daiAddress, amount, 1, account);
+  await repayTx.wait(1);
+  console.log("Repaid!");
 };
 
 main()
