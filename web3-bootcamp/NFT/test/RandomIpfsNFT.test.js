@@ -15,7 +15,6 @@ describe("Random NFT smart contract unit tests", () => {
     await deployments.fixture(["mocks", "randomIpfsNft"]);
     randomIpfsNft = await ethers.getContract("RandomIpfsNft");
     vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock");
-    tokenUries = await randomIpfsNft.getTokenUries(0);
   });
 
   describe("Constructor", () => {
@@ -46,12 +45,12 @@ describe("Random NFT smart contract unit tests", () => {
       })).to.be.revertedWith("RandomIpfsNft__NeedMoreETHSent");
     })
 
-    it.skip("should emit NftRequested event after successful nft request", async () => {
+    it("should emit NftRequested event after successful nft request", async () => {
       const mintFee = await randomIpfsNft.getMintFee();
       await expect(randomIpfsNft.requestNft({ value: mintFee.toString() })).to.emit(
         randomIpfsNft,
         "NftRequested"
-      );
+      )
     })
   });
 
@@ -69,11 +68,12 @@ describe("Random NFT smart contract unit tests", () => {
             console.log(e);
             reject(e);
           }
-        })
+        });
+
         try {
-          const fee = await randomIpfsNft.getMintFee();
+          const mintFee = await randomIpfsNft.getMintFee();
           const requestNftResponse = await randomIpfsNft.requestNft({
-            value: fee.toString(),
+            value: mintFee.toString(),
           });
           const requestNftReceipt = await requestNftResponse.wait(1);
           await vrfCoordinatorV2Mock.fulfillRandomWords(
@@ -109,18 +109,6 @@ describe("Random NFT smart contract unit tests", () => {
   })
 
   describe("Withdraw", () => {
-    // beforeEach(async () => {
-    //   const fee = await randomIpfsNft.getMintFee();
-    //   const requestNftResponse = await randomIpfsNft.requestNft({
-    //     value: fee.toString(),
-    //   });
-    //   const requestNftReceipt = await requestNftResponse.wait(1);
-    //   await vrfCoordinatorV2Mock.fulfillRandomWords(
-    //     requestNftReceipt.events[1].args.requestId,
-    //     randomIpfsNft.address
-    //   );
-    // });
-
     it("should update balances correctly", async () => {
       const provider = waffle.provider;
       const deployerStartingBalance = await provider.getBalance(deployer.address);
