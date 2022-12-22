@@ -71,7 +71,7 @@ contract DynamicSvgNft is ERC721 {
         (, int256 price, uint256 updatedAt, , ) = i_priceFeed
             .latestRoundData();
 
-        if (block.timestamp <= updatedAt + stalePriceDelay) {
+        if (block.timestamp >= updatedAt + stalePriceDelay) {
             revert Stale_Data();
         }
 
@@ -91,6 +91,10 @@ contract DynamicSvgNft is ERC721 {
                     '"}'
                 )
             );
+    }
+
+    function getBlockTimestamp() public view returns (uint256) {
+        return block.timestamp;
     }
 
     function getLowSvg() public view returns (string memory) {
