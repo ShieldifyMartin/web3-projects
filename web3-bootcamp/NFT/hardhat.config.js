@@ -1,12 +1,13 @@
 require("@nomiclabs/hardhat-waffle");
-// require("hardhat-gas-reporter");
-// require("@nomiclabs/hardhat-etherscan");
+require("hardhat-gas-reporter");
+require("@nomiclabs/hardhat-etherscan");
 require("dotenv").config();
-// require("solidity-coverage");
+require("solidity-coverage");
 require("hardhat-deploy");
 
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL || "";
-const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
+const PRIVATE_KEY = "d280de4730ffc3e3c76273a8450167e8a26daf70a3a6326f2d4065be21e88ac4";
+const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL || "";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 
 module.exports = {
@@ -23,7 +24,7 @@ module.exports = {
       blockConfirmations: 6,
     },
     mainnet: {
-      url: process.env.MAINNET_RPC_URL,
+      url: MAINNET_RPC_URL,
       accounts: [PRIVATE_KEY],
       chainId: 1,
       blockConfirmations: 6,
@@ -32,8 +33,11 @@ module.exports = {
   solidity: {
     compilers: [
       {
-        version: "0.8.17",
+        version: "0.8.17"
       },
+      {
+        version: "0.6.6",
+      }
     ],
   },
   etherscan: {
