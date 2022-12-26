@@ -8,6 +8,7 @@ if (!developmentChains.includes(network.name)) {
 }
 
 describe("Dynamic NFT smart contract unit tests", () => {
+    const expectedLowTokenURI = "{\"name\":\"Dynamic SVG NFT\", \"description\":\"An NFT that changes based on the Chainlink Feed\", \"attributes\": [{\"trait_type\": \"coolness\", \"value\": 100}], \"image\":\"data:image/svg+xml;base64PHN2ZyB2aWV3Qm94PSIwIDAgMjAwIDIwMCIgd2lkdGg9IjQwMCIgIGhlaWdodD0iNDAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgZmlsbD0ieWVsbG93IiByPSI3OCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPGcgY2xhc3M9ImV5ZXMiPgogICAgPGNpcmNsZSBjeD0iNjEiIGN5PSI4MiIgcj0iMTIiLz4KICAgIDxjaXJjbGUgY3g9IjEyNyIgY3k9IjgyIiByPSIxMiIvPgogIDwvZz4KICA8cGF0aCBkPSJtMTM2LjgxIDExNi41M2MuNjkgMjYuMTctNjQuMTEgNDItODEuNTItLjczIiBzdHlsZT0iZmlsbDpub25lOyBzdHJva2U6IGJsYWNrOyBzdHJva2Utd2lkdGg6IDM7Ii8+Cjwvc3ZnPg==\"}";
     const baseURI = "data:image/svg+xml;base64";
     let dynamicNft, deployer;
 
@@ -50,6 +51,7 @@ describe("Dynamic NFT smart contract unit tests", () => {
             it("should return valid tokenURI after successfull mint", async () => {
                 const highValue = ethers.utils.parseEther("1");
                 await dynamicNft.mintNft(highValue);
+
                 const tokenCounter = await dynamicNft.getTokenCounter();
                 const result = await dynamicNft.tokenURI(tokenCounter);
                 assert(result.includes("name", "description", "attributes", "image"));
@@ -60,7 +62,7 @@ describe("Dynamic NFT smart contract unit tests", () => {
                 const previousTokenCounter = await dynamicNft.getTokenCounter();
                 await expect(dynamicNft.mintNft(highValue)).to.emit(
                     dynamicNft,
-                    "CreatedNFT"
+                    "NftCreated"
                 );
                 await new Promise(async (resolve, reject) => {
                     dynamicNft.once("NftCreated", async () => {
@@ -88,6 +90,16 @@ describe("Dynamic NFT smart contract unit tests", () => {
 
                 const tokenCounter = await dynamicNft.getTokenCounter();
                 await expect(dynamicNft.tokenURI(tokenCounter)).to.be.revertedWith("Stale_Data");
+            })
+
+            it("shifts the token uri to lower when the price doesn't surpass the highvalue", async function () {
+                const highValue = ethers.utils.parseEther("100000000") // $100,000,000 dollar per ether.
+                const txResponse = await dynamicNft.mintNft(highValue);
+                await txResponse.wait(1);
+
+                const tokenCounter = await dynamicNft.getTokenCounter();
+                const tokenURI = await dynamicNft.tokenURI(tokenCounter);
+                assert.equal(tokenURI.toString(), expectedLowTokenURI.toString());
             })
         })
     });

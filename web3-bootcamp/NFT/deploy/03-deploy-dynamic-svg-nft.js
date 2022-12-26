@@ -1,5 +1,4 @@
 const { network } = require("hardhat");
-const { TASK_ETHERSCAN_VERIFY } = require("hardhat-deploy");
 const { developmentChains, networkConfig } = require("../helpers/helper-hardhat-config");
 const { verify } = require("../utils/verify");
 const fs = require("fs");
@@ -15,7 +14,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         const EthUsdAggregator = await ethers.getContract("MockV3Aggregator");
         ethUsdPriceFeedAddress = EthUsdAggregator.address;
     } else {
-        ethUsdPriceFeedAddress = networkConfig[chainId].ethUsdPriceFeedAddress;
+        ethUsdPriceFeedAddress = networkConfig[chainId].ethUsdPriceFeed;
     }
 
     const lowSVG = fs.readFileSync("./images/dynamicNft/frown.svg", { encoding: "utf8" });
