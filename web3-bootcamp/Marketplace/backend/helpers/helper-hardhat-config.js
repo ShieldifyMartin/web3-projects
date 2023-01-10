@@ -25,10 +25,15 @@ const INITIAL_PRICE = "200000000000000000000";
 const developmentChains = ["hardhat", "localhost"];
 const VERIFICATION_BLOCK_CONFIRMATIONS = 6;
 
+const FRONT_END_CONTRACTS_FILE = "../../frontend/constants/networkMapping.json";
+const FRONT_END_ABI_LOCATION = "../../frontend/constants/";
+
 module.exports = {
   networkConfig,
   DECIMALS,
   INITIAL_PRICE,
   developmentChains,
-  VERIFICATION_BLOCK_CONFIRMATIONS
+  VERIFICATION_BLOCK_CONFIRMATIONS,
+  FRONT_END_CONTRACTS_FILE,
+  FRONT_END_ABI_LOCATION
 };
